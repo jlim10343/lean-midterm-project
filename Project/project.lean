@@ -1,4 +1,4 @@
-namespace fifteen_one_fifty
+namespace structural_datatypes
 
 inductive List (α : Type u) where
   | Nil : List α
@@ -30,4 +30,4 @@ def inord {α : Type u} (t : Tree α) : List α :=
     | Tree.Empty => List.Nil
     | Tree.Node L x R => (inord L) @ (List.Cons x (inord R))
 
-end fifteen_one_fifty
+end structural_datatypes

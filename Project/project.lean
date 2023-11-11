@@ -14,11 +14,12 @@ def append {α : Type u} (l : List α) (r : List α) : List α :=
     | List.Cons x xs => List.Cons x (append xs r)
 
 infixl:69 " @ " => append
+infixl:68 " :: " => List.Cons
 
 def map {α β : Type u} (f : α → β) (l : List α) : List β :=
   match l with
     | List.Nil => List.Nil
-    | List.Cons x xs => List.Cons (f x) (map f xs)
+    | List.Cons x xs => (f x)::(map f xs)
 
 def treeMap {α β : Type u} (f : α → β) (t : Tree α) : Tree β :=
   match t with
@@ -28,7 +29,7 @@ def treeMap {α β : Type u} (f : α → β) (t : Tree α) : Tree β :=
 def inord {α : Type u} (t : Tree α) : List α :=
   match t with
     | Tree.Empty => List.Nil
-    | Tree.Node L x R => (inord L) @ (List.Cons x (inord R))
+    | Tree.Node L x R => (inord L) @ (x::(inord R))
 
 theorem mapAppend {α β : Type u} (A : List α) (B : List α) (f : α → β) :
   map f (A @ B) = (map f A) @ (map f B) := by
@@ -40,11 +41,11 @@ theorem mapAppend {α β : Type u} (A : List α) (B : List α) (f : α → β) :
           _                    = (map f List.Nil) @ (map f B) := by rw [map]
     | Cons x xs ih =>
         calc
-          map f ((List.Cons x xs) @ B) = map f (List.Cons x (xs @ B)) := by rw [append]
-          _                            = List.Cons (f x) (map f (xs @ B)) := by rw [map]
-          _                            = List.Cons (f x) ((map f xs) @ (map f B)) := by rw [ih]
-          _                            = (List.Cons (f x) (map f xs)) @ (map f B) := by rw [append]
-          _                            = (map f (List.Cons x xs)) @ (map f B) := by rw [map]
+          map f ((x::xs) @ B) = map f (x::(xs @ B)) := by rw [append]
+          _                   = (f x)::(map f (xs @ B)) := by rw [map]
+          _                   = (f x)::((map f xs) @ (map f B)) := by rw [ih]
+          _                   = ((f x)::(map f xs)) @ (map f B) := by rw [append]
+          _                   = (map f (x::xs)) @ (map f B) := by rw [map]
 
 theorem inordMap {α β : Type u} (T : Tree α) (f : α → β) :
   inord (treeMap f T) = map f (inord T) := by
@@ -58,11 +59,36 @@ theorem inordMap {α β : Type u} (T : Tree α) (f : α → β) :
     | Node L x R ihL ihR =>
         calc
           inord (treeMap f (Tree.Node L x R)) = inord (Tree.Node (treeMap f L) (f x) (treeMap f R)) := by rw [treeMap]
-          _                                   = (inord (treeMap f L)) @ (List.Cons (f x) (inord (treeMap f R))) := by rw [inord]
-          _                                   = (map f (inord L)) @ (List.Cons (f x) (map f (inord R))) := by rw [ihL, ihR]
-          _                                   = (map f (inord L)) @ (map f (List.Cons x (inord R))) := by rw [map]
-          _                                   = map f ((inord L) @ (List.Cons x (inord R))) := by rw [← mapAppend]
+          _                                   = (inord (treeMap f L)) @ ((f x)::(inord (treeMap f R))) := by rw [inord]
+          _                                   = (map f (inord L)) @ ((f x)::(map f (inord R))) := by rw [ihL, ihR]
+          _                                   = (map f (inord L)) @ (map f (x::(inord R))) := by rw [map]
+          _                                   = map f ((inord L) @ (x::(inord R))) := by rw [← mapAppend]
           _                                   = map f (inord (Tree.Node L x R)) := by rw [inord]
 
+inductive Rose (α : Type u) where
+  | Root : α → List (Rose α) → Rose α
+
+def treePreord {α : Type u} (T : Tree α) : List α :=
+  match T with
+    | Tree.Empty => List.Nil
+    | Tree.Node L x R => x::((treePreord L) @ (treePreord R))
+
+def concat {α : Type u} (LL : List (List α)) : List α :=
+  match LL with
+    | List.Nil => List.Nil
+    | List.Cons L Ls => L @ concat Ls
+
+def fold {α β : Type u} (g : α → β → β) (z : β) (L : List α) : β :=
+  match L with
+    | List.Nil => z
+    | List.Cons x xs => fold g (g x z) xs
+
+def sizeRose {α : Type u} (R : Rose α) : Nat :=
+  match R with
+    | Rose.Root x rs => 1 + (fold (Nat.add) 0 (map sizeRose rs))
+
+def rosePreord {α : Type u} (R : Rose α) : List α :=
+  match R with
+    | Rose.Root x rs => x::(concat (map rosePreord rs))
 
 end structural_datatypes

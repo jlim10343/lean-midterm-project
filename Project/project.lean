@@ -35,16 +35,34 @@ theorem mapAppend {α β : Type u} (A : List α) (B : List α) (f : α → β) :
     induction A with
     | Nil =>
         calc
-          map f (List.Nil @ B) = map f B := by rfl
-          _                    = List.Nil @ (map f B) := by rfl
-          _                    = (map f List.Nil) @ (map f B) := by rfl
+          map f (List.Nil @ B) = map f B := by rw [append]
+          _                    = List.Nil @ (map f B) := by rw [append]
+          _                    = (map f List.Nil) @ (map f B) := by rw [map]
     | Cons x xs ih =>
         calc
-          map f ((List.Cons x xs) @ B) = map f (List.Cons x (xs @ B)) := by rfl
-          _                            = List.Cons (f x) (map f (xs @ B)) := by rfl
+          map f ((List.Cons x xs) @ B) = map f (List.Cons x (xs @ B)) := by rw [append]
+          _                            = List.Cons (f x) (map f (xs @ B)) := by rw [map]
           _                            = List.Cons (f x) ((map f xs) @ (map f B)) := by rw [ih]
-          _                            = (List.Cons (f x) (map f xs)) @ (map f B) := by rfl
-          _                            = (map f (List.Cons x xs)) @ (map f B) := by rfl
+          _                            = (List.Cons (f x) (map f xs)) @ (map f B) := by rw [append]
+          _                            = (map f (List.Cons x xs)) @ (map f B) := by rw [map]
+
+theorem inordMap {α β : Type u} (T : Tree α) (f : α → β) :
+  inord (treeMap f T) = map f (inord T) := by
+    induction T with
+    | Empty =>
+        calc
+          inord (treeMap f Tree.Empty) = inord Tree.Empty := by rw [treeMap]
+          _                            = List.Nil := by rw [inord]
+          _                            = map f List.Nil := by rw [map]
+          _                            = map f (inord Tree.Empty) := by rw [inord]
+    | Node L x R ihL ihR =>
+        calc
+          inord (treeMap f (Tree.Node L x R)) = inord (Tree.Node (treeMap f L) (f x) (treeMap f R)) := by rw [treeMap]
+          _                                   = (inord (treeMap f L)) @ (List.Cons (f x) (inord (treeMap f R))) := by rw [inord]
+          _                                   = (map f (inord L)) @ (List.Cons (f x) (map f (inord R))) := by rw [ihL, ihR]
+          _                                   = (map f (inord L)) @ (map f (List.Cons x (inord R))) := by rw [map]
+          _                                   = map f ((inord L) @ (List.Cons x (inord R))) := by rw [← mapAppend]
+          _                                   = map f (inord (Tree.Node L x R)) := by rw [inord]
 
 
 end structural_datatypes

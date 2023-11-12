@@ -114,7 +114,16 @@ theorem lenAppend {α : Type u} (l1 : List α) (l2 : List α) :
         _                  = len (x::xs) + len l2 := by rw [len]
 
 theorem trimSize {α : Type u} (T : Tree α) :
-  size (trim T) + len (leaves T) = size T := by sorry
+  size (trim T) + len (leaves T) = size T := by
+  induction T with
+  | Empty =>
+      calc
+        size (trim Tree.Empty) + len (leaves Tree.Empty) = size (Tree.Empty) + len (leaves Tree.Empty) := by rw [trim]
+        _                              = size (Tree.Empty) + len (List.Nil) := by rw [leaves]
+        _                              = 0 + 0 := by rw [size, len]
+        _                              = 0 := by sorry
+        _                              = size (Tree.Empty) := by rw [size]
+  | Node L x R ihL ihR => sorry
 
 inductive Rose (α : Type u) where
   | Root : α → List (Rose α) → Rose α

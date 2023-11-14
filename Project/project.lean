@@ -101,6 +101,8 @@ def foldAppendEquiv {α : Type} (A : List α) (B : List α) : append A B = appen
         _                = append' (x::xs) B := by rw [append']
 
 -- mapAppend' f B A should be the same as (map f A) @ B
+-- The reason why we need an additional append will be apparent when do the later proofs
+-- Simply writing map' with just fold will not be enough! We strengthened our hypothesis
 def mapAppend' {α β : Type} (f : α → β) (B : List β) : List α →  List β :=
   fold (fun x L ↦ (f x)::L) B
 
@@ -214,6 +216,14 @@ theorem trimSize {α : Type} (T : Tree α) :
         _                              = 0 := by rw [Nat.zero_add]
         _                              = size (Tree.Empty) := by rw [size]
   | Node L x R ihL ihR =>
-      calc
+      match (L, R) with
+      | (Tree.Empty, Tree.Empty) =>
+          calc
+            size (trim (Tree.Node Tree.Empty x Tree.Empty)) + len (leaves (Tree.Node Tree.Empty x Tree.Empty)) = size Tree.Empty + len (leaves (Tree.Node Tree.Empty x Tree.Empty)) := by rw [trim]
+            _                          = 0 + len (leaves (Tree.Node Tree.Empty x Tree.Empty)) := by rw [size]
+            _                          = 0 + len (x::List.Nil) := by rw [leaves]
+            _                          = len (x::List.Nil) := by rw [Nat.zero_add]
+            _                          = 1 + len List.Nil := by rw [len]
+            _                          =
 
 end structural_datatypes

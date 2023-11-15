@@ -219,11 +219,24 @@ theorem trimSize {α : Type} (T : Tree α) :
       match (L, R) with
       | (Tree.Empty, Tree.Empty) =>
           calc
-            size (trim (Tree.Node Tree.Empty x Tree.Empty)) + len (leaves (Tree.Node Tree.Empty x Tree.Empty)) = size Tree.Empty + len (leaves (Tree.Node Tree.Empty x Tree.Empty)) := by rw [trim]
+            size (trim (Tree.Node L x R)) + len (leaves (Tree.Node L x R)) = size (trim (Tree.Node Tree.Empty x Tree.Empty)) + len (leaves (Tree.Node Tree.Empty x Tree.Empty)) := by congr
+            _                          = size Tree.Empty + len (leaves (Tree.Node Tree.Empty x Tree.Empty)) := by rw [trim]
             _                          = 0 + len (leaves (Tree.Node Tree.Empty x Tree.Empty)) := by rw [size]
             _                          = 0 + len (x::List.Nil) := by rw [leaves]
             _                          = len (x::List.Nil) := by rw [Nat.zero_add]
             _                          = 1 + len List.Nil := by rw [len]
-            _                          =
+            _                          = 1 + 0 := by rw [len]
+            _                          = 1 + 0 + 0 := by congr
+            _                          = 1 + size Tree.Empty + size Tree.Empty := by rw [← size]
+            _                          = size (Tree.Node Tree.Empty x Tree.Empty) := by rw [← size]
+            _                          = size (Tree.Node L x R) := by congr
+      | _ =>
+          calc
+            size (trim (Tree.Node L x R)) + len (leaves (Tree.Node L x R)) = size (Tree.Node (trim L) x (trim R)) + len ((leaves L) @ (leaves R)) := by rw [size, leaves]
+            _                          = 1 + size (trim L) + size (trim R) + len ((leaves L) @ (leaves R)) := by rw [size]
+            _                          = 1 + size (trim L) + size (trim R) + len (leaves L) + len (leaves R) := by rw [lenAppend]
+            _                          = 1 + (size (trim L) + len (leaves L)) + (size (trim R) + len (leaves R)) := by congr
+            _                          = 1 + size L + size R := by rw [ihL, ihR]
+            _                          = size (Tree.Node L x R) := by rw [size]
 
 end structural_datatypes

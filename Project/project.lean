@@ -232,7 +232,7 @@ theorem trimSize {α : Type} (T : Tree α) :
           | Node L' x' R' ihL' ihR' =>
               calc
                 size (trim (Tree.Node Tree.Empty x (Tree.Node L' x' R'))) + len (leaves (Tree.Node Tree.Empty x (Tree.Node L' x' R'))) =
-                            size (Tree.Node (trim (Tree.Empty)) x (trim (Tree.Node L' x' R'))) + len ((leaves Tree.Empty) @ leaves (Tree.Node L' x' R')) := by sorry
+                            size (Tree.Node (trim (Tree.Empty)) x (trim (Tree.Node L' x' R'))) + len ((leaves Tree.Empty) @ leaves (Tree.Node L' x' R')) := by rfl
                 _           = 1 + size (trim (Tree.Empty : Tree α)) + size (trim (Tree.Node L' x' R')) + (len ((leaves Tree.Empty) @ leaves (Tree.Node L' x' R'))) := by rw [size]
                 _           = 1 + size (Tree.Empty : Tree α) + size (trim (Tree.Node L' x' R')) + (len (leaves (Tree.Empty : Tree α)) + len (leaves (Tree.Node L' x' R'))) := by rw [trim, lenAppend]
                 _           = 1 + 0 + size (trim (Tree.Node L' x' R')) + (len (List.Nil : List α) + len (leaves (Tree.Node L' x' R'))) := by rw [size, leaves]

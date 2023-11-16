@@ -232,9 +232,9 @@ theorem trimSize {α : Type} (T : Tree α) :
           | Node L' x' R' ihL' ihR' =>
               calc
                 size (trim (Tree.Node Tree.Empty x (Tree.Node L' x' R'))) + len (leaves (Tree.Node Tree.Empty x (Tree.Node L' x' R'))) =
-                            size (Tree.Node (trim (Tree.Empty)) x (trim (Tree.Node L' x' R'))) + len ((leaves Tree.Empty) @ leaves (Tree.Node L' x' R')) := by sorry --rw [trim, leaves]
-                _           = 1 + size (trim (Tree.Empty : Tree α)) + size (trim (Tree.Node L' x' R')) + (len ((leaves Tree.Empty) @ leaves (Tree.Node L' x' R'))) := by sorry -- rw [size, len]
-                _           = 1 + size (Tree.Empty : Tree α) + size (trim (Tree.Node L' x' R')) + (len (leaves (Tree.Empty : Tree α)) + len (leaves (Tree.Node L' x' R'))) := by sorry --rw [trim, lenAppend]
+                            size (Tree.Node (trim (Tree.Empty)) x (trim (Tree.Node L' x' R'))) + len ((leaves Tree.Empty) @ leaves (Tree.Node L' x' R')) := by sorry
+                _           = 1 + size (trim (Tree.Empty : Tree α)) + size (trim (Tree.Node L' x' R')) + (len ((leaves Tree.Empty) @ leaves (Tree.Node L' x' R'))) := by rw [size]
+                _           = 1 + size (Tree.Empty : Tree α) + size (trim (Tree.Node L' x' R')) + (len (leaves (Tree.Empty : Tree α)) + len (leaves (Tree.Node L' x' R'))) := by rw [trim, lenAppend]
                 _           = 1 + 0 + size (trim (Tree.Node L' x' R')) + (len (List.Nil : List α) + len (leaves (Tree.Node L' x' R'))) := by rw [size, leaves]
                 _           = 1 + size (trim (Tree.Node L' x' R')) + (0 + len (leaves (Tree.Node L' x' R'))) := by rw [Nat.add_zero, len]
                 _           = 1 + size (trim (Tree.Node L' x' R')) + (len (leaves (Tree.Node L' x' R'))) := by rw [Nat.zero_add]
@@ -243,8 +243,8 @@ theorem trimSize {α : Type} (T : Tree α) :
       | Node LL Lx LR ihLL ihLR =>
           calc
             size (trim (Tree.Node (Tree.Node LL Lx LR) x R)) + len (leaves (Tree.Node (Tree.Node LL Lx LR) x R)) =
-                            size (Tree.Node (trim (Tree.Node LL Lx LR)) x (trim R)) + len ((leaves (Tree.Node LL Lx LR)) @ (leaves R)) := by sorry
-            _               = 1 + size (trim (Tree.Node LL Lx LR)) + size (trim R) + (len (leaves (Tree.Node LL Lx LR)) + len (leaves R)) := by sorry
+                            size (Tree.Node (trim (Tree.Node LL Lx LR)) x (trim R)) + len ((leaves (Tree.Node LL Lx LR)) @ (leaves R)) := by rw [trim, leaves]
+            _               = 1 + size (trim (Tree.Node LL Lx LR)) + size (trim R) + (len (leaves (Tree.Node LL Lx LR)) + len (leaves R)) := by rw [size, lenAppend]
             _               = 1 + size (trim (Tree.Node LL Lx LR)) + size (trim R) + (len (leaves R) + len (leaves (Tree.Node LL Lx LR))) := by rw [Nat.add_comm (len (leaves R))]
             _               = 1 + size (trim (Tree.Node LL Lx LR)) + (size (trim R) + (len (leaves R) + len (leaves (Tree.Node LL Lx LR)))) := by rw [Nat.add_assoc (1 + size (trim (Tree.Node LL Lx LR))) (size (trim R))]
             _               = 1 + size (trim (Tree.Node LL Lx LR)) + (size (trim R) + len (leaves R) + len (leaves (Tree.Node LL Lx LR))) :=  by rw [Nat.add_assoc (size (trim R))]
